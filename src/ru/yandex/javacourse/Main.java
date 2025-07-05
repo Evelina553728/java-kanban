@@ -1,13 +1,11 @@
 package ru.yandex.javacourse;
 
 import ru.yandex.javacourse.model.*;
-import ru.yandex.javacourse.service.TaskManager;
+import ru.yandex.javacourse.service.*;
 
 public class Main {
-
     public static void main(String[] args) {
-
-        TaskManager manager = new TaskManager();
+        TaskManager manager = new InMemoryTaskManager(); // Используем конкретную реализацию интерфейса
 
         Task task1 = new Task("Собрать коробки", "Переезд", Status.NEW);
         Task task2 = new Task("Упаковать кошку", "Переезд", Status.NEW);
