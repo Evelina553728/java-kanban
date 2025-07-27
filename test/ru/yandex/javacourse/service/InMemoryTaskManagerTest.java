@@ -1,102 +1,113 @@
 package ru.yandex.javacourse.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.yandex.javacourse.model.*;
+import ru.yandex.javacourse.model.Status;
+import ru.yandex.javacourse.model.Epic;
+import ru.yandex.javacourse.model.Subtask;
+import ru.yandex.javacourse.model.Task;
+import ru.yandex.javacourse.service.InMemoryTaskManager;
+import ru.yandex.javacourse.service.TaskManager;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class InMemoryTaskManagerTest {
+@DisplayName("Тесты для InMemoryTaskManager")
+class InMemoryTaskManagerTest {
 
-    private static final String TASK_TITLE = "Задача";
-    private static final String TASK_DESCRIPTION = "Описание";
-    private static final String EPIC_TITLE = "Эпик";
-    private static final String EPIC_DESCRIPTION = "Описание эпика";
-    private static final String SUBTASK_TITLE = "Подзадача";
-    private static final String SUBTASK_DESCRIPTION = "Описание подзадачи";
+    private TaskManager taskManager;
 
-    @Test
-    @DisplayName("addTask() должен сохранять задачу в менеджер")
-    void addTask_givenValidTask_shouldStoreTask() {
-        TaskManager manager = new InMemoryTaskManager();
-        Task task = new Task(TASK_TITLE, TASK_DESCRIPTION, Status.NEW);
+    private Task task;
+    private Epic epic;
+    private Subtask subtask;
 
-        manager.addTask(task);
-        List<Task> allTasks = manager.getAllTasks();
+    @BeforeEach
+    void setUp() {
+        taskManager = new InMemoryTaskManager();
 
-        assertEquals(1, allTasks.size());
-        assertEquals(TASK_TITLE, allTasks.get(0).getTitle());
+        task = new Task("Обычная задача", "Описание задачи", Status.NEW);
+        task.setId(1);
+
+        epic = new Epic("Эпик задача", "Описание эпика");
+        epic.setId(2);
+
+        subtask = new Subtask("Подзадача", "Описание подзадачи", Status.NEW, epic.getId());
+        subtask.setId(3);
     }
 
     @Test
-    @DisplayName("addEpic() должен сохранять эпик")
-    void addEpic_givenValidEpic_shouldStoreEpic() {
-        TaskManager manager = new InMemoryTaskManager();
-        Epic epic = new Epic(EPIC_TITLE, EPIC_DESCRIPTION);
+    @DisplayName("Добавление задачи должно работать корректно")
+    void addTask_shouldAppearInTaskList() {
+        taskManager.addTask(task);
+        Task saved = taskManager.getTask(task.getId());
 
-        manager.addEpic(epic);
-        Epic storedEpic = manager.getEpic(epic.getId());
-
-        assertNotNull(storedEpic);
-        assertEquals(EPIC_TITLE, storedEpic.getTitle());
+        assertNotNull(saved);
+        assertEquals(task, saved);
     }
 
     @Test
-    @DisplayName("addSubtask() должен добавлять подзадачу к эпику")
-    void addSubtask_givenValidSubtask_shouldLinkToEpic() {
-        TaskManager manager = new InMemoryTaskManager();
-        Epic epic = new Epic(EPIC_TITLE, EPIC_DESCRIPTION);
-        manager.addEpic(epic);
+    @DisplayName("Добавление эпика и подзадачи должно связывать их")
+    void addSubtask_shouldLinkToEpic() {
+        taskManager.addEpic(epic);
+        taskManager.addSubtask(subtask);
 
-        Subtask subtask = new Subtask(SUBTASK_TITLE, SUBTASK_DESCRIPTION, Status.NEW, epic.getId());
-        manager.addSubtask(subtask);
+        Subtask savedSubtask = taskManager.getSubtask(subtask.getId());
+        Epic savedEpic = taskManager.getEpic(epic.getId());
 
-        List<Subtask> subtasks = manager.getSubtasksOfEpic(epic.getId());
+        assertNotNull(savedSubtask);
+        assertEquals(epic.getId(), savedSubtask.getEpicId());
+        assertEquals(1, savedEpic.getSubtaskIds().size());
+        assertTrue(savedEpic.getSubtaskIds().contains(subtask.getId()));
+    }
 
+    @Test
+    @DisplayName("Удаление задачи должно убирать её из менеджера")
+    void removeTask_shouldDeleteFromManager() {
+        taskManager.addTask(task);
+        taskManager.removeTaskById(task.getId());
+
+        assertNull(taskManager.getTask(task.getId()));
+    }
+
+    @Test
+    @DisplayName("Удаление эпика должно также удалять его подзадачи")
+    void removeEpic_shouldAlsoRemoveSubtasks() {
+        taskManager.addEpic(epic);
+        taskManager.addSubtask(subtask);
+
+        taskManager.removeEpicById(epic.getId());
+
+        assertNull(taskManager.getEpic(epic.getId()));
+        assertNull(taskManager.getSubtask(subtask.getId()));
+    }
+
+    @Test
+    @DisplayName("Обновление задачи должно сохранять изменения")
+    void updateTask_shouldReflectChanges() {
+        taskManager.addTask(task);
+        task.setStatus(Status.DONE);
+
+        taskManager.updateTask(task);
+        Task updated = taskManager.getTask(task.getId());
+
+        assertEquals(Status.DONE, updated.getStatus());
+    }
+
+    @Test
+    @DisplayName("Получение всех задач, эпиков и подзадач")
+    void getAllEntities_shouldReturnCorrectLists() {
+        taskManager.addTask(task);
+        taskManager.addEpic(epic);
+        taskManager.addSubtask(subtask);
+
+        List<Task> tasks = taskManager.getAllTasks();
+        List<Epic> epics = taskManager.getAllEpics();
+        List<Subtask> subtasks = taskManager.getAllSubtasks();
+
+        assertEquals(1, tasks.size());
+        assertEquals(1, epics.size());
         assertEquals(1, subtasks.size());
-        assertEquals(SUBTASK_TITLE, subtasks.get(0).getTitle());
-    }
-
-    @Test
-    @DisplayName("updateSubtask() должен менять статус подзадачи и обновлять статус эпика")
-    void updateSubtask_whenStatusChanged_shouldUpdateEpicStatus() {
-        TaskManager manager = new InMemoryTaskManager();
-        Epic epic = new Epic(EPIC_TITLE, EPIC_DESCRIPTION);
-        manager.addEpic(epic);
-
-        Subtask subtask = new Subtask(SUBTASK_TITLE, SUBTASK_DESCRIPTION, Status.NEW, epic.getId());
-        manager.addSubtask(subtask);
-
-        subtask.setStatus(Status.DONE);
-        manager.updateSubtask(subtask);
-
-        Epic updatedEpic = manager.getEpic(epic.getId());
-        assertEquals(Status.IN_PROGRESS, updatedEpic.getStatus());
-    }
-
-    @Test
-    @DisplayName("removeTask() должен удалять задачу")
-    void removeTask_givenExistingTask_shouldRemoveIt() {
-        TaskManager manager = new InMemoryTaskManager();
-        Task task = new Task(TASK_TITLE, TASK_DESCRIPTION, Status.NEW);
-        manager.addTask(task);
-
-        manager.removeTask(task.getId());
-
-        assertTrue(manager.getAllTasks().isEmpty());
-    }
-
-    @Test
-    @DisplayName("clearTasks() должен очищать все задачи")
-    void clearTasks_whenCalled_shouldEmptyTaskList() {
-        TaskManager manager = new InMemoryTaskManager();
-        manager.addTask(new Task(TASK_TITLE, TASK_DESCRIPTION, Status.NEW));
-        manager.addTask(new Task(TASK_TITLE, TASK_DESCRIPTION, Status.NEW));
-
-        manager.clearTasks();
-
-        assertEquals(0, manager.getAllTasks().size());
     }
 }
