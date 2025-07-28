@@ -3,12 +3,7 @@ package ru.yandex.javacourse.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import ru.yandex.javacourse.model.Status;
-import ru.yandex.javacourse.model.Epic;
-import ru.yandex.javacourse.model.Subtask;
-import ru.yandex.javacourse.model.Task;
-import ru.yandex.javacourse.service.InMemoryTaskManager;
-import ru.yandex.javacourse.service.TaskManager;
+import ru.yandex.javacourse.model.*;
 
 import java.util.List;
 
@@ -27,14 +22,12 @@ class InMemoryTaskManagerTest {
     void setUp() {
         taskManager = new InMemoryTaskManager();
 
-        task = new Task("Обычная задача", "Описание задачи", Status.NEW);
-        task.setId(1);
-
         epic = new Epic("Эпик задача", "Описание эпика");
-        epic.setId(2);
+        taskManager.addEpic(epic);
 
         subtask = new Subtask("Подзадача", "Описание подзадачи", Status.NEW, epic.getId());
-        subtask.setId(3);
+
+        task = new Task("Обычная задача", "Описание задачи", Status.NEW);
     }
 
     @Test
@@ -50,16 +43,15 @@ class InMemoryTaskManagerTest {
     @Test
     @DisplayName("Добавление эпика и подзадачи должно связывать их")
     void addSubtask_shouldLinkToEpic() {
-        taskManager.addEpic(epic);
         taskManager.addSubtask(subtask);
 
         Subtask savedSubtask = taskManager.getSubtask(subtask.getId());
         Epic savedEpic = taskManager.getEpic(epic.getId());
 
-        assertNotNull(savedSubtask);
-        assertEquals(epic.getId(), savedSubtask.getEpicId());
-        assertEquals(1, savedEpic.getSubtaskIds().size());
-        assertTrue(savedEpic.getSubtaskIds().contains(subtask.getId()));
+        assertNotNull(savedSubtask, "Подзадача не сохранилась");
+        assertEquals(epic.getId(), savedSubtask.getEpicId(), "ID эпика в подзадаче не совпадает");
+        assertEquals(1, savedEpic.getSubtaskIds().size(), "Количество подзадач в эпике должно быть 1");
+        assertTrue(savedEpic.getSubtaskIds().contains(savedSubtask.getId()), "Эпик не содержит ID подзадачи");
     }
 
     @Test
@@ -74,40 +66,38 @@ class InMemoryTaskManagerTest {
     @Test
     @DisplayName("Удаление эпика должно также удалять его подзадачи")
     void removeEpic_shouldAlsoRemoveSubtasks() {
-        taskManager.addEpic(epic);
         taskManager.addSubtask(subtask);
 
         taskManager.removeEpicById(epic.getId());
 
-        assertNull(taskManager.getEpic(epic.getId()));
-        assertNull(taskManager.getSubtask(subtask.getId()));
+        assertNull(taskManager.getEpic(epic.getId()), "Эпик не удалён");
+        assertNull(taskManager.getSubtask(subtask.getId()), "Подзадача не удалена вместе с эпиком");
     }
 
     @Test
     @DisplayName("Обновление задачи должно сохранять изменения")
     void updateTask_shouldReflectChanges() {
         taskManager.addTask(task);
+
         task.setStatus(Status.DONE);
-
         taskManager.updateTask(task);
-        Task updated = taskManager.getTask(task.getId());
 
-        assertEquals(Status.DONE, updated.getStatus());
+        Task updated = taskManager.getTask(task.getId());
+        assertEquals(Status.DONE, updated.getStatus(), "Статус задачи не обновился");
     }
 
     @Test
     @DisplayName("Получение всех задач, эпиков и подзадач")
     void getAllEntities_shouldReturnCorrectLists() {
         taskManager.addTask(task);
-        taskManager.addEpic(epic);
         taskManager.addSubtask(subtask);
 
         List<Task> tasks = taskManager.getAllTasks();
         List<Epic> epics = taskManager.getAllEpics();
         List<Subtask> subtasks = taskManager.getAllSubtasks();
 
-        assertEquals(1, tasks.size());
-        assertEquals(1, epics.size());
-        assertEquals(1, subtasks.size());
+        assertEquals(1, tasks.size(), "Неверное количество обычных задач");
+        assertEquals(1, epics.size(), "Неверное количество эпиков");
+        assertEquals(1, subtasks.size(), "Неверное количество подзадач");
     }
 }
