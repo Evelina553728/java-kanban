@@ -5,7 +5,7 @@ import ru.yandex.javacourse.service.*;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager manager = new InMemoryTaskManager(); // Используем конкретную реализацию интерфейса
+        TaskManager manager = new InMemoryTaskManager();
 
         Task task1 = new Task("Собрать коробки", "Переезд", Status.NEW);
         Task task2 = new Task("Упаковать кошку", "Переезд", Status.NEW);
@@ -13,7 +13,7 @@ public class Main {
         manager.addTask(task2);
 
         Epic epic1 = new Epic("Переезд", "Сделать всё");
-        manager.addEpic(epic1);
+        manager.addEpic(epic1); // теперь у эпика есть ID
 
         Subtask sub1 = new Subtask("Сказать слова прощания", "Речь", Status.NEW, epic1.getId());
         Subtask sub2 = new Subtask("Прощальный взгляд", "Жалко же", Status.NEW, epic1.getId());
