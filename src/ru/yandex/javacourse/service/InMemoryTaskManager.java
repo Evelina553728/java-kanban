@@ -12,7 +12,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
 
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
-    private int idCounter = 1;
+    protected int idCounter = 1;
 
     private int generateId() {
         return idCounter++;
