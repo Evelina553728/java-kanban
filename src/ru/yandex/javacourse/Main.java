@@ -13,7 +13,7 @@ public class Main {
         manager.addTask(task2);
 
         Epic epic1 = new Epic("Переезд", "Сделать всё");
-        manager.addEpic(epic1); // теперь у эпика есть ID
+        manager.addEpic(epic1);
 
         Subtask sub1 = new Subtask("Сказать слова прощания", "Речь", Status.NEW, epic1.getId());
         Subtask sub2 = new Subtask("Прощальный взгляд", "Жалко же", Status.NEW, epic1.getId());
