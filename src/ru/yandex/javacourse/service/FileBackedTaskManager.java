@@ -19,7 +19,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected void save() {
         try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
-            // Заголовок
             writer.write("id,type,name,status,description,epic\n");
 
             for (Task task : tasks.values()) {
