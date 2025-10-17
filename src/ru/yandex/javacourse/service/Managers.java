@@ -2,14 +2,15 @@ package ru.yandex.javacourse.service;
 
 import java.io.File;
 
-public final class Managers {
+public class Managers {
+
+    private static final File DEFAULT_FILE = new File("tasks.csv");
 
     private Managers() {
     }
 
     public static TaskManager getDefault() {
-        File file = new File("tasks.csv");
-        return new FileBackedTaskManager(file);
+        return new FileBackedTaskManager(DEFAULT_FILE);
     }
 
     public static HistoryManager getDefaultHistory() {

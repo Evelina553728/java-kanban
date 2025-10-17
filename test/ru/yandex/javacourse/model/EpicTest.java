@@ -2,76 +2,79 @@ package ru.yandex.javacourse.model;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import java.util.List;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
 
     @Test
-    @DisplayName("Статус эпика без подзадач должен быть NEW")
-    void epicWithoutSubtasks_ShouldBeNew() {
-        Epic epic = new Epic("Эпик без подзадач", "Описание");
+    @DisplayName("Эпик без подзадач должен иметь статус NEW")
+    void epicWithoutSubtasksShouldBeNew() {
+        Epic epic = new Epic("Epic1", "desc");
         assertEquals(Status.NEW, epic.getStatus());
     }
 
     @Test
-    @DisplayName("Статус эпика с подзадачами со статусом NEW должен быть NEW")
-    void epicWithAllNewSubtasks_ShouldBeNew() {
-        Epic epic = new Epic("Эпик", "Описание");
-        epic.addSubtaskId(1);
-        epic.addSubtaskId(2);
+    @DisplayName("Эпик с NEW подзадачами должен быть NEW")
+    void epicWithAllNewSubtasksShouldBeNew() {
+        Epic epic = new Epic("Epic1", "desc");
+        Subtask sub1 = new Subtask("Sub1", "desc", Status.NEW, 1,
+                Duration.ofMinutes(10), LocalDateTime.now());
+        Subtask sub2 = new Subtask("Sub2", "desc", Status.NEW, 1,
+                Duration.ofMinutes(15), LocalDateTime.now().plusMinutes(20));
 
-        Subtask sub1 = new Subtask("Подзадача 1", "desc", Status.NEW, epic.getId());
-        Subtask sub2 = new Subtask("Подзадача 2", "desc", Status.NEW, epic.getId());
+        epic.addSubtaskId(sub1.getId());
+        epic.addSubtaskId(sub2.getId());
 
-        epic.updateStatus(List.of(sub1, sub2));
-
+        epic.updateStatus(java.util.List.of(sub1, sub2));
         assertEquals(Status.NEW, epic.getStatus());
     }
 
     @Test
-    @DisplayName("Статус эпика с подзадачами со статусом DONE должен быть DONE")
-    void epicWithAllDoneSubtasks_ShouldBeDone() {
-        Epic epic = new Epic("Эпик", "Описание");
-        epic.addSubtaskId(1);
-        epic.addSubtaskId(2);
+    @DisplayName("Эпик с DONE подзадачами должен быть DONE")
+    void epicWithAllDoneSubtasksShouldBeDone() {
+        Epic epic = new Epic("Epic1", "desc");
+        Subtask sub1 = new Subtask("Sub1", "desc", Status.DONE, 1,
+                Duration.ofMinutes(10), LocalDateTime.now());
+        Subtask sub2 = new Subtask("Sub2", "desc", Status.DONE, 1,
+                Duration.ofMinutes(15), LocalDateTime.now().plusMinutes(20));
 
-        Subtask sub1 = new Subtask("Подзадача 1", "desc", Status.DONE, epic.getId());
-        Subtask sub2 = new Subtask("Подзадача 2", "desc", Status.DONE, epic.getId());
+        epic.addSubtaskId(sub1.getId());
+        epic.addSubtaskId(sub2.getId());
 
-        epic.updateStatus(List.of(sub1, sub2));
-
+        epic.updateStatus(java.util.List.of(sub1, sub2));
         assertEquals(Status.DONE, epic.getStatus());
     }
 
     @Test
-    @DisplayName("Статус эпика с подзадачами NEW и DONE должен быть IN_PROGRESS")
-    void epicWithMixedSubtasks_ShouldBeInProgress() {
-        Epic epic = new Epic("Эпик", "Описание");
-        epic.addSubtaskId(1);
-        epic.addSubtaskId(2);
+    @DisplayName("Эпик с NEW и DONE подзадачами должен быть IN_PROGRESS")
+    void epicWithMixedSubtasksShouldBeInProgress() {
+        Epic epic = new Epic("Epic1", "desc");
+        Subtask sub1 = new Subtask("Sub1", "desc", Status.NEW, 1,
+                Duration.ofMinutes(10), LocalDateTime.now());
+        Subtask sub2 = new Subtask("Sub2", "desc", Status.DONE, 1,
+                Duration.ofMinutes(15), LocalDateTime.now().plusMinutes(20));
 
-        Subtask sub1 = new Subtask("Подзадача 1", "desc", Status.NEW, epic.getId());
-        Subtask sub2 = new Subtask("Подзадача 2", "desc", Status.DONE, epic.getId());
+        epic.addSubtaskId(sub1.getId());
+        epic.addSubtaskId(sub2.getId());
 
-        epic.updateStatus(List.of(sub1, sub2));
-
+        epic.updateStatus(java.util.List.of(sub1, sub2));
         assertEquals(Status.IN_PROGRESS, epic.getStatus());
     }
 
     @Test
-    @DisplayName("Статус эпика с подзадачами IN_PROGRESS должен быть IN_PROGRESS")
-    void epicWithAllInProgressSubtasks_ShouldBeInProgress() {
-        Epic epic = new Epic("Эпик", "Описание");
-        epic.addSubtaskId(1);
-        epic.addSubtaskId(2);
+    @DisplayName("Эпик с IN_PROGRESS подзадачами должен быть IN_PROGRESS")
+    void epicWithInProgressSubtasksShouldBeInProgress() {
+        Epic epic = new Epic("Epic1", "desc");
+        Subtask sub1 = new Subtask("Sub1", "desc", Status.IN_PROGRESS, 1,
+                Duration.ofMinutes(10), LocalDateTime.now());
 
-        Subtask sub1 = new Subtask("Подзадача 1", "desc", Status.IN_PROGRESS, epic.getId());
-        Subtask sub2 = new Subtask("Подзадача 2", "desc", Status.IN_PROGRESS, epic.getId());
+        epic.addSubtaskId(sub1.getId());
 
-        epic.updateStatus(List.of(sub1, sub2));
-
+        epic.updateStatus(java.util.List.of(sub1));
         assertEquals(Status.IN_PROGRESS, epic.getStatus());
     }
 }
