@@ -6,41 +6,41 @@ import java.util.List;
 
 public interface TaskManager {
 
-    void addTask(Task task);
+    List<Task> getTasks();
 
-    Task getTask(int id);
+    List<Epic> getEpics();
 
-    List<Task> getAllTasks();
+    List<Subtask> getSubtasks();
+
+    Task getTaskById(int id);
+
+    Epic getEpicById(int id);
+
+    Subtask getSubtaskById(int id);
+
+    Task createTask(Task task);
+
+    Epic createEpic(Epic epic);
+
+    Subtask createSubtask(Subtask subtask);
 
     void updateTask(Task task);
 
-    void removeTaskById(int id);
-
-    void removeAllTasks();
-
-    void addEpic(Epic epic);
-
-    Epic getEpic(int id);
-
-    List<Epic> getAllEpics();
-
     void updateEpic(Epic epic);
-
-    void removeEpicById(int id);
-
-    void removeAllEpics();
-
-    void addSubtask(Subtask subtask);
-
-    Subtask getSubtask(int id);
-
-    List<Subtask> getAllSubtasks();
 
     void updateSubtask(Subtask subtask);
 
-    void removeSubtaskById(int id);
+    void deleteTasks();
 
-    void removeAllSubtasks();
+    void deleteEpics();
+
+    void deleteSubtasks();
+
+    void deleteTaskById(int id);
+
+    void deleteEpicById(int id);
+
+    void deleteSubtaskById(int id);
 
     List<Subtask> getSubtasksOfEpic(int epicId);
 
