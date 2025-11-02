@@ -8,7 +8,6 @@ import ru.yandex.javacourse.service.TaskManager;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 public class TasksHandler extends BaseHttpHandler implements HttpHandler {
 
