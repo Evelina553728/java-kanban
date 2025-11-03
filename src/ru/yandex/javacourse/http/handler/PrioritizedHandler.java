@@ -19,12 +19,14 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            if ("GET".equals(exchange.getRequestMethod())) {
-                sendText(exchange, gson.toJson(manager.getTasks()), 200);
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                String response = gson.toJson(manager.getPrioritizedTasks());
+                sendText(exchange, response, 200);
             } else {
-                sendText(exchange, "{\"error\": \"Unsupported method\"}", 405);
+                sendText(exchange, "{\"error\": \"Method not allowed\"}", 405);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             sendInternalError(exchange);
         }
     }
